@@ -10,8 +10,7 @@ public class Caverna {
 
   private Camara[] camaras;
 
-  public Caverna() {
-    // TODO: Decidir se essa classe vai iniciar o grafo aleatóriamente ou se
-    //       vai receber o grafo pronto
+  public Caverna(Camara[] camaras) {
+    this.camaras = camaras;
   }
 }
