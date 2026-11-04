@@ -8,7 +8,7 @@ public class Caverna {
     public int[] custoConexoes;
   }
 
-  private Camara[] caramas;
+  private Camara[] camaras;
 
   public Caverna() {
     // TODO: Decidir se essa classe vai iniciar o grafo aleatóriamente ou se
