@@ -16,15 +16,20 @@ public class Robo {
   }
 
   public Robo reproduzir(PApplet p) {
-    Robo descendente = new Robo(dna.clone());
+    var novoDNA = dna.clone();
 
     if(p.random(0, 1) < TAXA_MUTACAO) {
-      float posGene = p.random(0, dna.length);
-
-      // TODO: Modificar gene
+      for(int k = 0; k < novoDNA.length; k++) {
+        if(p.random(1) < 0.001) {
+          novoDNA[k] = (int)PApplet.constrain(
+            (float)novoDNA[k] +
+            p.random(-0.1f, 0.1f), 0.0f, 1.0f
+          );
+        }
+      }
     }
 
-    return null;
+    return new Robo(novoDNA);
   }
 
   public Robo(int[] dna) {
