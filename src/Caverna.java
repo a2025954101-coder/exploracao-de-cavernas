@@ -8,9 +8,24 @@ public class Caverna {
     public int[] custoConexoes;
   }
 
-  private Camara[] camaras;
 
-  public Caverna(Camara[] camaras) {
-    this.camaras = camaras;
-  }
+  private Camara[] camaras;
+  private int indiceInicio;
+
+
+  public int getIndiceInicio() {  
+    return indiceInicio;
+  }                             
+                              
+  public Camara getInicio() {     
+    return camaras[indiceInicio]; 
+  }                             
+
+
+  public Caverna(Camara[] camaras, int indiceInicio) {
+    assert indiceInicio >= 0 && indiceInicio < camaras.length;
+    
+    this.camaras = camaras.clone();
+    this.indiceInicio = indiceInicio;
+  } 
 }
