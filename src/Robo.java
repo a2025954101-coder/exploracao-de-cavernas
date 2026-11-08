@@ -108,26 +108,121 @@ public class Robo {
     return valor;
   }
 
-  public Robo reproduzir(PApplet p, int quantCamaras) {
+  public Robo reproduzir(PApplet p, Caverna caverna) {
     var novoDNA = dna.clone();
 
     if(p.random(0, 1) < TAXA_MUTACAO) {
-      for(int k = 0; k < novoDNA.length; k++) {
+      for(int k = 1; k < novoDNA.length - 1; k++) {
         if(p.random(1) < 0.001) {
-          int v = (int)p.random(-1.0f, 1.0f+1); // v entre [-1, 1]
+          int quantidadeOpcoes = 0;
+          for (int candidato = 0; candidato < caverna.getQuantidadeCamaras(); candidato++) {
+            if (caverna.getCustoTravessia(novoDNA[k - 1], candidato) >= 0
+                && caverna.getCustoTravessia(candidato, novoDNA[k + 1]) >= 0) {
+              quantidadeOpcoes++;
+            }
+          }
 
-          novoDNA[k] = (int)PApplet.constrain(
-            (float)novoDNA[k] + v,
-            0, quantCamaras-1
-          );
+          if (quantidadeOpcoes > 0) {
+            int opcaoEscolhida = (int) p.random(quantidadeOpcoes);
+            for (int candidato = 0; candidato < caverna.getQuantidadeCamaras(); candidato++) {
+              if (caverna.getCustoTravessia(novoDNA[k - 1], candidato) >= 0
+                  && caverna.getCustoTravessia(candidato, novoDNA[k + 1]) >= 0) {
+                if (opcaoEscolhida == 0) {
+                  novoDNA[k] = candidato;
+                  break;
+                }
+                opcaoEscolhida--;
+              }
+            }
+          }
         }
       }
     }
 
-    return new Robo(novoDNA);
+    return new Robo(caverna, novoDNA);
   }
 
-  public Robo(int[] dna) {
-    this.dna = dna;
+  public Robo(PApplet p, Caverna caverna, int quantidadePassos) {
+    this(caverna, gerarDNA(p, caverna, quantidadePassos));
+  }
+
+  public Robo(Caverna caverna, int[] dna) {
+    if (caverna == null || dna == null || dna.length < 3) {
+      throw new IllegalArgumentException("A rota precisa começar e terminar na base, com ao menos um túnel.");
+    }
+
+    int indiceBase = caverna.getIndiceInicio();
+    if (indiceBase < 0 || indiceBase >= caverna.getQuantidadeCamaras()) {
+      throw new IllegalArgumentException("O índice da base não corresponde a uma câmara.");
+    }
+    if (dna[0] != indiceBase || dna[dna.length - 1] != indiceBase) {
+      throw new IllegalArgumentException("A rota precisa começar e terminar na base.");
+    }
+
+    for (int i = 1; i < dna.length; i++) {
+      if (dna[i - 1] < 0 || dna[i - 1] >= caverna.getQuantidadeCamaras()
+          || dna[i] < 0 || dna[i] >= caverna.getQuantidadeCamaras()) {
+        throw new IllegalArgumentException("A rota contém o índice de uma câmara inexistente.");
+      }
+      if (caverna.getCustoTravessia(dna[i - 1], dna[i]) < 0) {
+        throw new IllegalArgumentException("A rota contém duas câmaras sem túnel entre elas.");
+      }
+    }
+
+    this.dna = dna.clone();
+  }
+
+  private static int[] gerarDNA(PApplet p, Caverna caverna, int quantidadePassos) {
+    if (p == null || caverna == null || quantidadePassos < 1) {
+      throw new IllegalArgumentException("É necessário informar a caverna e ao menos um passo.");
+    }
+
+    int[] ida = new int[quantidadePassos + 1];
+    ida[0] = caverna.getIndiceInicio();
+    int passosRealizados = 0;
+
+    for (int passo = 0; passo < quantidadePassos; passo++) {
+      int origem = ida[passosRealizados];
+      int quantidadeVizinhos = 0;
+
+      for (int candidato = 0; candidato < caverna.getQuantidadeCamaras(); candidato++) {
+        if (caverna.getCustoTravessia(origem, candidato) >= 0
+            && caverna.getCustoTravessia(candidato, origem) >= 0) {
+          quantidadeVizinhos++;
+        }
+      }
+
+      if (quantidadeVizinhos == 0) {
+        break;
+      }
+
+      int vizinhoEscolhido = (int) p.random(quantidadeVizinhos);
+      for (int candidato = 0; candidato < caverna.getQuantidadeCamaras(); candidato++) {
+        if (caverna.getCustoTravessia(origem, candidato) >= 0
+            && caverna.getCustoTravessia(candidato, origem) >= 0) {
+          if (vizinhoEscolhido == 0) {
+            ida[++passosRealizados] = candidato;
+            break;
+          }
+          vizinhoEscolhido--;
+        }
+      }
+    }
+
+    if (passosRealizados == 0) {
+      throw new IllegalArgumentException("A câmara-base não possui túneis para iniciar uma rota.");
+    }
+
+    // O caminho de volta repete os passos da ida na ordem inversa.
+    int[] dna = new int[passosRealizados * 2 + 1];
+    int indice = 0;
+    for (int i = 0; i <= passosRealizados; i++) {
+      dna[indice++] = ida[i];
+    }
+    for (int i = passosRealizados - 1; i >= 0; i--) {
+      dna[indice++] = ida[i];
+    }
+
+    return dna;
   }
 }
