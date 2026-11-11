@@ -15,8 +15,12 @@ Escolha o método e o seu sistema operacional abaixo:
 #### 🐧 Linux
 Execute o script bash via terminal:
 ```bash
-chmod +x runLinux.sh
 ./runLinux.sh
+```
+
+Se não funcionar, pode ser necessário rodar isso antes:
+```bash
+chmod +x runLinux.sh
 ```
 
 #### 🪟 Windows
@@ -33,8 +37,13 @@ Execute o arquivo batch pelo prompt de comando (CMD) ou PowerShell:
 #### 🐧 Linux
 Execute o script bash via terminal:
 ```
-chmod +x coreLinux.sh
 ./coreLinux.sh
+```
+
+Se não funcionar, pode ser necessário rodar isso antes:
+
+```bash
+chmod +x coreLinux.sh
 ```
 
 #### 🪟 Windows
