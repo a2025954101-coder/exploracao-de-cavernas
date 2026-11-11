@@ -147,36 +147,11 @@ public class Robo {
   }
 
   public Robo(Caverna caverna, int[] dna) {
-    if (caverna == null || dna == null || dna.length < 3) {
-      throw new IllegalArgumentException("A rota precisa começar e terminar na base, com ao menos um túnel.");
-    }
-
     int indiceBase = caverna.getIndiceInicio();
-    if (indiceBase < 0 || indiceBase >= caverna.getQuantidadeCamaras()) {
-      throw new IllegalArgumentException("O índice da base não corresponde a uma câmara.");
-    }
-    if (dna[0] != indiceBase || dna[dna.length - 1] != indiceBase) {
-      throw new IllegalArgumentException("A rota precisa começar e terminar na base.");
-    }
-
-    for (int i = 1; i < dna.length; i++) {
-      if (dna[i - 1] < 0 || dna[i - 1] >= caverna.getQuantidadeCamaras()
-          || dna[i] < 0 || dna[i] >= caverna.getQuantidadeCamaras()) {
-        throw new IllegalArgumentException("A rota contém o índice de uma câmara inexistente.");
-      }
-      if (caverna.getCustoTravessia(dna[i - 1], dna[i]) < 0) {
-        throw new IllegalArgumentException("A rota contém duas câmaras sem túnel entre elas.");
-      }
-    }
-
     this.dna = dna.clone();
   }
 
   private static int[] gerarDNA(PApplet p, Caverna caverna, int quantidadePassos) {
-    if (p == null || caverna == null || quantidadePassos < 1) {
-      throw new IllegalArgumentException("É necessário informar a caverna e ao menos um passo.");
-    }
-
     int[] ida = new int[quantidadePassos + 1];
     ida[0] = caverna.getIndiceInicio();
     int passosRealizados = 0;
@@ -207,10 +182,6 @@ public class Robo {
           vizinhoEscolhido--;
         }
       }
-    }
-
-    if (passosRealizados == 0) {
-      throw new IllegalArgumentException("A câmara-base não possui túneis para iniciar uma rota.");
     }
 
     // O caminho de volta repete os passos da ida na ordem inversa.
