@@ -8,7 +8,7 @@ import processing.core.PApplet;
 public class Populacao {
   private static final long PENALIDADE_SEM_RETORNO = 100_000L;
 
-  private final PApplet aleatorio;
+  private final PApplet p;
   private final Caverna caverna;
   private final int tamanho;
   private final int quantidadePassos;
@@ -18,9 +18,9 @@ public class Populacao {
   private long melhorAptidao;
   private int geracao;
 
-  public Populacao(PApplet aleatorio, Caverna caverna, int tamanho,
+  public Populacao(PApplet p, Caverna caverna, int tamanho,
                    int quantidadePassos) {
-    this.aleatorio = aleatorio;
+    this.p = p;
     this.caverna = caverna;
     this.tamanho = tamanho;
     this.quantidadePassos = quantidadePassos;
@@ -28,7 +28,7 @@ public class Populacao {
     this.aptidoes = new ArrayList<>();
 
     for (int i = 0; i < tamanho; i++) {
-      robos.add(new Robo(aleatorio, caverna, quantidadePassos));
+      robos.add(new Robo(p, caverna, quantidadePassos));
     }
 
     avaliar();
@@ -63,7 +63,7 @@ public class Populacao {
     novosRobos.add(elite);
     while (novosRobos.size() < tamanho) {
       Robo selecionado = selecionarPorRoleta(menorAptidao);
-      novosRobos.add(selecionado.reproduzir(aleatorio, caverna));
+      novosRobos.add(selecionado.reproduzir(p, caverna));
     }
 
     robos = novosRobos;
@@ -77,7 +77,7 @@ public class Populacao {
       pesoTotal += (double) (aptidao - menorAptidao) + 1.0;
     }
 
-    double sorteio = aleatorio.random((float) pesoTotal);
+    double sorteio = p.random((float) pesoTotal);
     for (int i = 0; i < robos.size(); i++) {
       sorteio -= (double) (aptidoes.get(i) - menorAptidao) + 1.0;
       if (sorteio < 0) {
