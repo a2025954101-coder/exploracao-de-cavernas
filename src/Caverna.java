@@ -11,6 +11,19 @@ public class Caverna {
 
   private Camara[] camaras;
   private int indiceInicio;
+  private int[][] camarasAjdacentes;
+
+  private int[][] aplicarAdjacencia() {
+    int[][] adjacencias = new int[camaras.length][camaras.length];
+
+    for(int i = 0; i < camaras.length; i++) {
+      for(int j = 0; j < camaras.length; j++) {
+        adjacencias[i][j] = getCustoTravessia(i, j);
+      }
+    }
+
+    return adjacencias;
+  }
 
 
   public int getIndiceInicio() {  
@@ -31,6 +44,10 @@ public class Caverna {
 
   public Camara[] getCamaras() {
     return camaras;
+  }
+
+  public int[][] getCamarasAjdacentes() {
+      return camarasAjdacentes;
   }
 
   public int getCustoTravessia(int indiceOrigem, int indiceDestino) {
@@ -55,5 +72,7 @@ public class Caverna {
     
     this.camaras = camaras.clone();
     this.indiceInicio = indiceInicio;
+
+    camarasAjdacentes = aplicarAdjacencia();
   } 
 }
