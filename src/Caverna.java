@@ -29,6 +29,10 @@ public class Caverna {
     return camaras[indice];
   }
 
+  public Camara[] getCamaras() {
+    return camaras;
+  }
+
   public int getCustoTravessia(int indiceOrigem, int indiceDestino) {
     assert indiceOrigem >= 0 && indiceOrigem < camaras.length;
     assert indiceDestino >= 0 && indiceDestino < camaras.length;
