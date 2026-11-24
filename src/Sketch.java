@@ -22,6 +22,7 @@ public class Sketch extends PApplet {
   @Override
   public void settings() {
     size(1000, 800);
+    noSmooth();
   }
 
   @Override

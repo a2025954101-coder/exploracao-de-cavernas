@@ -2,6 +2,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 
 public class DesenhadorCaverna {
@@ -10,12 +11,16 @@ public class DesenhadorCaverna {
     
     private PApplet pApplet;
     private Caverna caverna;
+    private PImage imagemRobo;
+    private PImage imagemEntrada;
     private Map<Caverna.Camara, PVector> pontoPorCamara;
 
 
     public DesenhadorCaverna(PApplet pApplet, Caverna caverna) {
         this.pApplet = pApplet;
         this.caverna = caverna;
+        imagemRobo = pApplet.loadImage("assets/Robo.png");
+        imagemEntrada = pApplet.loadImage("assets/entrada_caverna.png");
         pontoPorCamara = new HashMap<>();
         RAIO_CAMARA = 50;
 
@@ -132,9 +137,15 @@ public class DesenhadorCaverna {
         pApplet.fill(base ? 0xFFFFD166 : 0xFFE8DCC8);
         pApplet.circle(coordenada.x, coordenada.y, 2*RAIO_CAMARA);
         pApplet.fill(30, 25, 20);
-        pApplet.textSize(base ? 16 : 18);
-        pApplet.text(base ? "BASE " + indice : "C" + indice,
-            coordenada.x, coordenada.y);
+        if (base && imagemEntrada != null) {
+            pApplet.imageMode(PApplet.CENTER);
+            pApplet.image(imagemEntrada, coordenada.x, coordenada.y - 5, 52, 52);
+            pApplet.textSize(12);
+            pApplet.text("BASE / C" + indice, coordenada.x, coordenada.y + 36);
+        } else {
+            pApplet.textSize(18);
+            pApplet.text("C" + indice, coordenada.x, coordenada.y);
+        }
     }
 
     private void desenhaTunel(Caverna.Camara origem, Caverna.Camara destino,
@@ -182,12 +193,17 @@ public class DesenhadorCaverna {
         if (melhor) {
             // O melhor fica maior e acima do centro da câmara.
             y -= 28;
-            diametro = 25;
             pApplet.stroke(255, 220, 90);
             pApplet.strokeWeight(4);
             pApplet.noFill();
-            pApplet.circle(x, y, 34);
-            pApplet.fill(55, 130, 220);
+            pApplet.circle(x, y, 48);
+            if (imagemRobo != null) {
+                pApplet.imageMode(PApplet.CENTER);
+                pApplet.image(imagemRobo, x, y, 40, 40);
+            } else {
+                diametro = 25;
+                pApplet.fill(55, 130, 220);
+            }
         } else {
             // Robôs da população ficam distribuídos em volta do centro,
             // evitando que os que visitam a mesma câmara virem um único ponto.
@@ -199,8 +215,10 @@ public class DesenhadorCaverna {
             pApplet.fill(120, 190, 235, 190);
         }
 
-        pApplet.circle(x, y, diametro);
-        if (melhor) {
+        if (!melhor || imagemRobo == null) {
+            pApplet.circle(x, y, diametro);
+        }
+        if (melhor && imagemRobo == null) {
             pApplet.fill(255);
             pApplet.noStroke();
             pApplet.textAlign(PApplet.CENTER, PApplet.CENTER);
