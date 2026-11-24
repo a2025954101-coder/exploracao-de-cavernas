@@ -1,7 +1,7 @@
 import java.util.HashMap;
 
 public class Caverna {
-  public class Camara {
+  public static class Camara {
     public HashMap<Recurso, Integer> quantRecursos;
 
     public Camara[] conexoes;
