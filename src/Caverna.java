@@ -6,17 +6,6 @@ public class Caverna {
 
     public Camara[] conexoes;
     public int[] custoConexoes;
-
-    public Camara(HashMap<Recurso, Integer> quantRecursos, Camara[] conexoes, 
-      int[] custoConexoes) {
-        assert quantRecursos != null : "quantRecursos não pode ser nulo.";
-        assert conexoes != null : "conexoes não pode ser nulo.";
-        assert custoConexoes != null : "custoConexoes não pode ser nulo.";
-
-        this.quantRecursos = quantRecursos;
-        this.conexoes = conexoes;
-        this.custoConexoes = custoConexoes;
-    }
   }
 
   private Camara[] camaras;
