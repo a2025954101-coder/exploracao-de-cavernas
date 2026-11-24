@@ -11,6 +11,9 @@ public class Sketch extends PApplet {
   TelaMenu menu;
   boolean estaPausado;
 
+  Caverna caverna;
+  DesenhadorCaverna desenhador;
+
   @Override
   public void settings() {
     size(800, 600);
@@ -20,6 +23,9 @@ public class Sketch extends PApplet {
   public void setup() {
     menu = new TelaMenu(this);
     estaPausado = false;
+
+    caverna = GeradorCaverna.gerar();
+    desenhador = new DesenhadorCaverna(this, caverna);
   }
 
   @Override
@@ -35,6 +41,8 @@ public class Sketch extends PApplet {
       desenhaMenu();
       return;
     }
+
+    desenhador.atualiza();
   }
 
   @Override
