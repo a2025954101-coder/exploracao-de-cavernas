@@ -1,6 +1,8 @@
 import processing.core.PApplet;
 
 public class Sketch extends PApplet {
+  private static final int FRAMES_POR_PASSO = 60;
+
   public static void main(String[] args) {
     PApplet.main("Sketch");
   }
@@ -13,10 +15,13 @@ public class Sketch extends PApplet {
 
   Caverna caverna;
   DesenhadorCaverna desenhador;
+  Populacao populacao;
+  int indicePassoRobo;
+  int ultimoAvancoRobo;
 
   @Override
   public void settings() {
-    size(800, 600);
+    size(1000, 800);
   }
 
   @Override
@@ -26,6 +31,10 @@ public class Sketch extends PApplet {
 
     caverna = GeradorCaverna.gerar();
     desenhador = new DesenhadorCaverna(this, caverna);
+
+    populacao = new Populacao(this, caverna, 40, 6);
+    indicePassoRobo = 0;
+    ultimoAvancoRobo = 0;
   }
 
   @Override
@@ -43,6 +52,62 @@ public class Sketch extends PApplet {
     }
 
     desenhador.atualiza();
+    atualizaRobo();
+  }
+
+  private void atualizaRobo() {
+    Robo melhor = populacao.getMelhor();
+    int[] rota = melhor.getDNA();
+    if (rota.length == 0) return;
+
+    if (frameCount - ultimoAvancoRobo >= FRAMES_POR_PASSO) {
+      ultimoAvancoRobo = frameCount;
+      indicePassoRobo++;
+
+      if (indicePassoRobo >= rota.length) {
+        populacao.proximaGeracao();
+        indicePassoRobo = 0;
+        rota = populacao.getMelhor().getDNA();
+      }
+    }
+
+    int melhorAtual = populacao.getRobos().indexOf(populacao.getMelhor());
+
+    for (int i = 0; i < populacao.getRobos().size(); i++) {
+      Robo robo = populacao.getRobos().get(i);
+      int[] rotaRobo = robo.getDNA();
+
+      if (rotaRobo.length == 0) continue;
+
+      int passoAtual = Math.min(indicePassoRobo, rotaRobo.length - 1);
+      int cameraAtual = rotaRobo[passoAtual];
+      
+      desenhador.desenhaRobo(cameraAtual, i, populacao.getRobos().size(),
+        i == melhorAtual);
+    }
+
+    fazTitulo(rota);
+  }
+
+  public void fazTitulo(int[] rota) {
+    Robo melhor = populacao.getMelhor();
+    int totalRecursos = 0;
+    for (int quantidade : melhor.getResultadoAvaliacao().recursosColetados.values()) {
+      totalRecursos += quantidade;
+    }
+
+    String resumo = "Melhor robô — recursos coletados: " + totalRecursos;
+    windowTitle(resumo + " | Geração: " + populacao.getGeracao());
+    pushStyle();
+    fill(255);
+    textAlign(LEFT, TOP);
+    textSize(18);
+    text(resumo, 12, 12);
+    textSize(14);
+    text("Geração: " + populacao.getGeracao()
+      + "   Passo: " + (indicePassoRobo + 1) + "/" + rota.length
+      + "   Robôs: " + populacao.getRobos().size(), 12, 36);
+    popStyle();
   }
 
   @Override

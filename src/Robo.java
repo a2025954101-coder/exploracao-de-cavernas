@@ -39,6 +39,10 @@ public class Robo {
     return resultadoAvaliacao;
   }
 
+  public int[] getDNA() {
+    return dna.clone();
+  }
+
   public ResultadoAvaliacao avaliar(Caverna caverna) {
     // Cada avaliação começa na base com a energia cheia.
     Map<Recurso, Integer> recursosColetados = new HashMap<>();
