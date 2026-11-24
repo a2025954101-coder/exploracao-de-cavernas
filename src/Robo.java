@@ -3,12 +3,15 @@
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Arrays;
 
 import processing.core.PApplet;
 
 public class Robo {
-  public static final int ENERGIA_INICIAL = 100;
+  // A rota gerada tem até 12 travessias, cada uma com custo máximo 20.
+  public static final int ENERGIA_INICIAL = 240;
   private static final float TAXA_MUTACAO = 0.5f; // Testar diferentes valores
+  private static final float CHANCE_MUTACAO_GENE = 0.05f;
 
   private int energia = ENERGIA_INICIAL;
 
@@ -20,14 +23,20 @@ public class Robo {
     public int energiaConsumida;
     public boolean chegouBase;
     public long valorTotal;
+    private final int[] rotaExecutada;
 
     private ResultadoAvaliacao(HashMap<Recurso, Integer> recursosColetados,
                                 int energiaConsumida, boolean chegouBase,
-                                long valorTotal) {
+                                long valorTotal, int[] rotaExecutada) {
       this.recursosColetados = recursosColetados;
       this.energiaConsumida = energiaConsumida;
       this.chegouBase = chegouBase;
       this.valorTotal = valorTotal;
+      this.rotaExecutada = rotaExecutada.clone();
+    }
+
+    public int[] getRotaExecutada() {
+      return rotaExecutada.clone();
     }
   }
 
@@ -53,10 +62,13 @@ public class Robo {
     int energiaRestante = ENERGIA_INICIAL;
     long valorTotal = 0;
     int movimentosRealizados = 0;
+    int[] rotaExecutada = new int[dna.length];
+    int tamanhoRotaExecutada = 0;
 
     // A rota só é executada se o primeiro gene indicar a base.
     boolean rotaIniciadaNaBase = dna.length > 0 && dna[0] == indiceBase;
     if (rotaIniciadaNaBase) {
+      rotaExecutada[tamanhoRotaExecutada++] = indiceAtual;
       valorTotal = coletarRecursos(caverna.getCamara(indiceAtual), recursosColetados);
       camarasVisitadas[indiceAtual] = true;
 
@@ -71,6 +83,7 @@ public class Robo {
         energiaRestante -= custo;
         indiceAtual = proximoIndice;
         movimentosRealizados++;
+        rotaExecutada[tamanhoRotaExecutada++] = indiceAtual;
 
         if (!camarasVisitadas[indiceAtual]) {
           valorTotal += coletarRecursos(caverna.getCamara(indiceAtual), recursosColetados);
@@ -90,14 +103,15 @@ public class Robo {
       new HashMap<>(recursosColetados),
       ENERGIA_INICIAL - energiaRestante,
       chegouBase,
-      valorTotal
+      valorTotal,
+      Arrays.copyOf(rotaExecutada, tamanhoRotaExecutada)
     );
     return resultadoAvaliacao;
   }
 
   private long coletarRecursos(Caverna.Camara camara, Map<Recurso, Integer> coletados) {
     long valor = 0;
-    for (Map.Entry<Recurso, Integer> recurso : camara.quantRecursos.entrySet()) {
+    for (Map.Entry<Recurso, Integer> recurso : camara.getQuantRecursos().entrySet()) {
       Recurso tipo = recurso.getKey();
       int quantidade = recurso.getValue();
       valor += (long) quantidade * tipo.getValor();
@@ -117,7 +131,7 @@ public class Robo {
 
     if(p.random(0, 1) < TAXA_MUTACAO) {
       for(int k = 1; k < novoDNA.length - 1; k++) {
-        if(p.random(1) < 0.001) {
+        if(p.random(1) < CHANCE_MUTACAO_GENE) {
           int quantidadeOpcoes = 0;
           for (int candidato = 0; candidato < caverna.getQuantidadeCamaras(); candidato++) {
             if (caverna.getCustoTravessia(novoDNA[k - 1], candidato) >= 0
@@ -151,7 +165,6 @@ public class Robo {
   }
 
   public Robo(Caverna caverna, int[] dna) {
-    int indiceBase = caverna.getIndiceInicio();
     this.dna = dna.clone();
   }
 

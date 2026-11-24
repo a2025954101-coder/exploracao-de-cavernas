@@ -1,11 +1,44 @@
 import java.util.HashMap;
+import java.util.Collections;
+import java.util.Map;
 
 public class Caverna {
   public static class Camara {
-    public HashMap<Recurso, Integer> quantRecursos;
+    private final HashMap<Recurso, Integer> quantRecursos = new HashMap<>();
 
-    public Camara[] conexoes;
-    public int[] custoConexoes;
+    private Camara[] conexoes = new Camara[0];
+    private int[] custoConexoes = new int[0];
+
+    public Map<Recurso, Integer> getQuantRecursos() {
+      return Collections.unmodifiableMap(quantRecursos);
+    }
+
+    public Camara[] getConexoes() {
+      return conexoes.clone();
+    }
+
+    public int getCustoConexao(Camara destino) {
+      for (int i = 0; i < conexoes.length; i++) {
+        if (conexoes[i] == destino) return custoConexoes[i];
+      }
+      return -1;
+    }
+
+    void adicionarRecurso(Recurso recurso, int quantidade) {
+      quantRecursos.put(recurso, quantidade);
+    }
+
+    void adicionarConexao(Camara destino, int custo) {
+      int tamanho = conexoes.length;
+      Camara[] novasConexoes = new Camara[tamanho + 1];
+      int[] novosCustos = new int[tamanho + 1];
+      System.arraycopy(conexoes, 0, novasConexoes, 0, tamanho);
+      System.arraycopy(custoConexoes, 0, novosCustos, 0, tamanho);
+      novasConexoes[tamanho] = destino;
+      novosCustos[tamanho] = custo;
+      conexoes = novasConexoes;
+      custoConexoes = novosCustos;
+    }
   }
 
   private Camara[] camaras;
@@ -42,11 +75,15 @@ public class Caverna {
   }
 
   public Camara[] getCamaras() {
-    return camaras;
+    return camaras.clone();
   }
 
   public int[][] getCamarasAjdacentes() {
-      return camarasAjdacentes;
+    int[][] copia = new int[camarasAjdacentes.length][];
+    for (int i = 0; i < camarasAjdacentes.length; i++) {
+      copia[i] = camarasAjdacentes[i].clone();
+    }
+    return copia;
   }
 
   public int getCustoTravessia(int indiceOrigem, int indiceDestino) {
@@ -55,14 +92,7 @@ public class Caverna {
 
     Camara origem = camaras[indiceOrigem];
     Camara destino = camaras[indiceDestino];
-
-    for (int i = 0; i < origem.conexoes.length; i++) {
-      if (origem.conexoes[i] == destino) {
-        return origem.custoConexoes[i];
-      }
-    }
-
-    return -1;
+    return origem.getCustoConexao(destino);
   }
 
 

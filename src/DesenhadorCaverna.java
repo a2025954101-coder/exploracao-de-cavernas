@@ -106,7 +106,7 @@ public class DesenhadorCaverna {
         pApplet.textAlign(PApplet.CENTER, PApplet.CENTER);
 
         for (int i = 0; i < camaras.length; i++) {
-            for (Caverna.Camara conexao : camaras[i].conexoes) {
+            for (Caverna.Camara conexao : camaras[i].getConexoes()) {
                 int destino = indiceDaCamara(camaras, conexao);
 
                 if (destino > i) {

@@ -58,7 +58,7 @@ public class Sketch extends PApplet {
 
   private void atualizaRobo() {
     Robo melhor = populacao.getMelhor();
-    int[] rota = melhor.getDNA();
+    int[] rota = melhor.getResultadoAvaliacao().getRotaExecutada();
     if (rota.length == 0) return;
 
     if (frameCount - ultimoAvancoRobo >= FRAMES_POR_PASSO) {
@@ -68,7 +68,7 @@ public class Sketch extends PApplet {
       if (indicePassoRobo >= rota.length) {
         populacao.proximaGeracao();
         indicePassoRobo = 0;
-        rota = populacao.getMelhor().getDNA();
+        rota = populacao.getMelhor().getResultadoAvaliacao().getRotaExecutada();
       }
     }
 
@@ -76,7 +76,7 @@ public class Sketch extends PApplet {
 
     for (int i = 0; i < populacao.getRobos().size(); i++) {
       Robo robo = populacao.getRobos().get(i);
-      int[] rotaRobo = robo.getDNA();
+      int[] rotaRobo = robo.getResultadoAvaliacao().getRotaExecutada();
 
       if (rotaRobo.length == 0) continue;
 

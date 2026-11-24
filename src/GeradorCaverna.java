@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -58,10 +57,6 @@ public class GeradorCaverna {
 
   private static void inicializarRecursos(Caverna.Camara camara,
                                            Random aleatorio) {
-    camara.quantRecursos = new HashMap<>();
-    camara.conexoes = new Caverna.Camara[0];
-    camara.custoConexoes = new int[0];
-
     if (aleatorio.nextDouble() >= CHANCE_CAMARA_COM_RECURSO) {
       return;
     }
@@ -81,7 +76,7 @@ public class GeradorCaverna {
         QUANTIDADE_MAXIMA_UNIDADES - QUANTIDADE_MINIMA_UNIDADES + 1
       ) + QUANTIDADE_MINIMA_UNIDADES;
 
-      camara.quantRecursos.put(recursosDisponiveis.get(i), quantidade);
+      camara.adicionarRecurso(recursosDisponiveis.get(i), quantidade);
     }
   }
 
@@ -92,30 +87,13 @@ public class GeradorCaverna {
     ) + CUSTO_MINIMO_TUNEL;
 
     // As conexões são bidirecionais e possuem o mesmo custo nos dois sentidos.
-    adicionarConexao(camaras[indiceA], camaras[indiceB], custo);
-    adicionarConexao(camaras[indiceB], camaras[indiceA], custo);
-  }
-
-  private static void adicionarConexao(Caverna.Camara origem,
-                                       Caverna.Camara destino, int custo) {
-    int tamanho = origem.conexoes.length;
-
-    Caverna.Camara[] novasConexoes = new Caverna.Camara[tamanho + 1];
-    int[] novosCustos = new int[tamanho + 1];
-
-    System.arraycopy(origem.conexoes, 0, novasConexoes, 0, tamanho);
-    System.arraycopy(origem.custoConexoes, 0, novosCustos, 0, tamanho);
-
-    novasConexoes[tamanho] = destino;
-    novosCustos[tamanho] = custo;
-
-    origem.conexoes = novasConexoes;
-    origem.custoConexoes = novosCustos;
+    camaras[indiceA].adicionarConexao(camaras[indiceB], custo);
+    camaras[indiceB].adicionarConexao(camaras[indiceA], custo);
   }
 
   private static boolean possuiConexao(Caverna.Camara origem,
                                         Caverna.Camara destino) {
-    for (Caverna.Camara conexao : origem.conexoes) {
+    for (Caverna.Camara conexao : origem.getConexoes()) {
       if (conexao == destino) {
         return true;
       }
