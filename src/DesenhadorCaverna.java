@@ -96,21 +96,49 @@ public class DesenhadorCaverna {
     public void desenha() {
         Caverna.Camara[] camaras = caverna.getCamaras();
 
-        for(Caverna.Camara camara : camaras) {
-            Caverna.Camara[] conexoes = camara.conexoes;
+        pApplet.pushStyle();
+        pApplet.rectMode(PApplet.CENTER);
+        pApplet.textAlign(PApplet.CENTER, PApplet.CENTER);
 
-            for(Caverna.Camara conexao : conexoes)
-                desenhaTunel(camara, conexao);
+        for (int i = 0; i < camaras.length; i++) {
+            for (Caverna.Camara conexao : camaras[i].conexoes) {
+                int destino = indiceDaCamara(camaras, conexao);
 
-            desenhaCamara(pontoPorCamara.get(camara));
+                if (destino > i) {
+                    desenhaTunel(camaras[i], conexao,
+                        caverna.getCustoTravessia(i, destino));
+                }
+            }
         }
+
+        for (int i = 0; i < camaras.length; i++) {
+            desenhaCamara(pontoPorCamara.get(camaras[i]), i,
+                i == caverna.getIndiceInicio());
+        }
+        pApplet.popStyle();
     }
 
-    private void desenhaCamara(PVector coordenada) {
+    private int indiceDaCamara(Caverna.Camara[] camaras, Caverna.Camara alvo) {
+        for (int i = 0; i < camaras.length; i++) {
+            if (camaras[i] == alvo) return i;
+        }
+
+        return -1;
+    }
+
+    private void desenhaCamara(PVector coordenada, int indice, boolean base) {
+        pApplet.stroke(35, 29, 21);
+        pApplet.strokeWeight(2);
+        pApplet.fill(base ? 0xFFFFD166 : 0xFFE8DCC8);
         pApplet.circle(coordenada.x, coordenada.y, 2*RAIO_CAMARA);
+        pApplet.fill(30, 25, 20);
+        pApplet.textSize(base ? 16 : 18);
+        pApplet.text(base ? "BASE " + indice : "C" + indice,
+            coordenada.x, coordenada.y);
     }
 
-    private void desenhaTunel(Caverna.Camara origem, Caverna.Camara destino) {
+    private void desenhaTunel(Caverna.Camara origem, Caverna.Camara destino,
+                              int custo) {
         PVector pontoO = pontoPorCamara.get(origem);
         PVector pontoD = pontoPorCamara.get(destino);
 
@@ -118,17 +146,68 @@ public class DesenhadorCaverna {
         float dy = pontoD.y - pontoO.y;
         float angulo = PApplet.atan2(dy, dx);
 
-        float meioX = (pontoO.x + pontoD.x) / 2; 
-        float meioY = (pontoO.y + pontoD.y) / 2; 
+        float distancia = PVector.dist(pontoO, pontoD);
+        float meioX = (pontoO.x + pontoD.x) / 2;
+        float meioY = (pontoO.y + pontoD.y) / 2;
 
         pApplet.pushMatrix();
-        
         pApplet.translate(meioX, meioY);
-
         pApplet.rotate(angulo);
-        pApplet.rect(0, 0, PVector.dist(pontoO, pontoD), 10);
-
+        pApplet.stroke(65, 58, 48);
+        pApplet.strokeWeight(2);
+        pApplet.fill(115, 101, 78);
+        pApplet.rect(0, 0, Math.max(0, distancia - 2 * RAIO_CAMARA), 12);
         pApplet.popMatrix();
+
+        pApplet.noStroke();
+        pApplet.fill(255, 248, 230);
+        pApplet.rect(meioX, meioY - 12, 38, 22, 5);
+        pApplet.fill(35, 29, 21);
+        pApplet.textSize(12);
+        pApplet.text("E" + custo, meioX, meioY - 12);
+    }
+
+    public void desenhaRobo(int indiceCamara, int indicePopulacao,
+                            int tamanhoPopulacao, boolean melhor) {
+        Caverna.Camara[] camaras = caverna.getCamaras();
+        if (indiceCamara < 0 || indiceCamara >= camaras.length) return;
+        PVector ponto = pontoPorCamara.get(camaras[indiceCamara]);
+        if (ponto == null) return;
+
+        pApplet.pushStyle();
+        float x = ponto.x;
+        float y = ponto.y;
+        float diametro = 9;
+
+        if (melhor) {
+            // O melhor fica maior e acima do centro da câmara.
+            y -= 28;
+            diametro = 25;
+            pApplet.stroke(255, 220, 90);
+            pApplet.strokeWeight(4);
+            pApplet.noFill();
+            pApplet.circle(x, y, 34);
+            pApplet.fill(55, 130, 220);
+        } else {
+            // Robôs da população ficam distribuídos em volta do centro,
+            // evitando que os que visitam a mesma câmara virem um único ponto.
+            float angulo = PApplet.TWO_PI * indicePopulacao
+                / Math.max(1, tamanhoPopulacao);
+            x += PApplet.cos(angulo) * 31;
+            y += PApplet.sin(angulo) * 31;
+            pApplet.noStroke();
+            pApplet.fill(120, 190, 235, 190);
+        }
+
+        pApplet.circle(x, y, diametro);
+        if (melhor) {
+            pApplet.fill(255);
+            pApplet.noStroke();
+            pApplet.textAlign(PApplet.CENTER, PApplet.CENTER);
+            pApplet.textSize(13);
+            pApplet.text("M", x, y);
+        }
+        pApplet.popStyle();
     }
 
     public Caverna getCaverna() {
